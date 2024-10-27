@@ -42,18 +42,14 @@ import pandas as pd
 import fastf1
 
 potential_sessions = {"Practice 1", "Practice 2", "Practice 3", "Sprint Qualifying", "Qualifying", "Sprint Race", "Race"}
+session_per_year = {2018: 21, 2019: 21, 2020: 17, 2021: 22, 2022: 22, 2023: 22, 2024: 20}
 
+fastf1.Cache.enable_cache('G:\F1ML\F1Data')
+fastf1.Cache.offline_mode('enabled')
 
 def impute_columns(df, column):
-    avg_column = df.groupby('Driver')[column].mean().to_dict()
+    df[column].fillna(df[column].mean(), inplace=True)  # Example using mean
 
-    df[column+'_IsImputed'] = df.apply(
-        lambda row: pd.isna(row[column]), axis=1
-    )
-
-    df[column] = df.apply(
-        lambda row: avg_column[row['Driver']] if pd.isna(row[column]) else row[column], axis=1
-    )
 
 def impute_columns_sessiontime(df, column):
     df[column + '_IsImputed'] = df.apply(
@@ -77,56 +73,168 @@ def impute_columns_sessiontime(df, column):
         )
 
 
+def add_weather_data(df):
+    air_temp = list()
+    humidity = list()
+    pressure = list()
+    rainfall = list()
+    track_temp = list()
+    wind_direction = list()
+    wind_speed = list()
+
+
+    for idx, lap in df.iterrows():
+
+        weather_data = lap.get_weather_data()
+
+        air_temp.append(weather_data['AirTemp'])
+        humidity.append(weather_data['Humidity'])
+        pressure.append(weather_data['Pressure'])
+        rainfall.append(weather_data['Rainfall'])
+        track_temp.append(weather_data['TrackTemp'])
+        wind_direction.append(weather_data['WindDirection'])
+        wind_speed.append(weather_data['WindSpeed'])
+
+
+    df['AirTemp'] = air_temp
+    df['Humidity'] = humidity
+    df['Pressure'] = pressure
+    df['Rainfall'] = rainfall
+    df['TrackTemp'] = track_temp
+    df['WindDirection'] = wind_direction
+    df['WindSpeed'] = wind_speed
+
+
 def main():
+    year_dfs = list()
+    for year in range(2018,2024+1): # 2018,2024+1
+        weekend_dfs = list()
+        for weekend in range(1, session_per_year[year]+1): # 1, session_per_year[year]+1
+            event = fastf1.get_event(year, weekend)
+            sessions = list(potential_sessions.intersection(event.values)) # How we can get the potential sessions in an event
+
+            session_dfs = list()
+            for session_name in sessions:
+                if year == 2019 and weekend == 17 and session_name == 'Practice 3': # Actually cancelled
+                    continue
+                elif year == 2020 and weekend == 2 and session_name == 'Practice 3': # Actually cancelled
+                    continue
+                elif year == 2020 and weekend == 11 and (session_name == 'Practice 1' or session_name == 'Practice 2'): # Actually cancelled
+                    continue
+                elif year == 2021 and weekend == 1 and session_name == 'Practice 1': #  Not cancelled
+                    continue
+                elif year == 2021 and weekend == 15 and session_name == 'Practice 3': # Actually cancelled
+                    continue
+                elif year == 2022 and weekend == 14 and session_name == 'Qualifying':  # Not cancelled
+                    continue
+                elif year == 2022 and weekend == 6 and session_name == 'Practice 2': # Not cancelled, but 3.4.1 still doesn't work.
+                    continue
+                elif year == 2022 and weekend == 11 and session_name == 'Practice 1': # Not cancelled, but 3.4.1 still doesn't work.
+                    continue
+                elif year == 2022 and weekend == 16 and session_name == 'Qualifying': # Not cancelled, but 3.4.1 still doesn't work
+                    continue
+                elif year == 2022 and weekend == 21 and session_name == 'Qualifying': # Not cancelled, but 3.4.1 still doesn't work
+                    continue
+                elif year == 2023 and weekend == 23 and session_name == 'Practice 2': # Not cancelled but, 3.4.1 still doesn't work
+                    continue
+                elif year == 2024 and weekend == 8 and session_name == 'Qualifying': #Not cancelled
+                    continue
+                elif year == 2024 and weekend == 17 and session_name == 'Qualifying': #Not cancelled
+                    continue
 
 
-    year = 2024
-    gp = 11
-    event = fastf1.get_event(year, gp)
-    sessions = list(potential_sessions.intersection(event.values)) # How we can get the potential sessions in an event
-    session_name = 'Race'
-    session = event.get_session(session_name)
-    session.load()
-    print(sessions[0])
-
-    # Code to get LapNorm for each driver in each session
-    lap_data = session.laps
-    drivers = set(session.laps['Driver'].values)
-    max_lap_per_driver_per_session = lap_data.groupby('Driver')['LapNumber'].max().to_dict()
-    avg_sec1_per_driver = lap_data.groupby('Driver')['Sector1Time'].mean().to_dict()
-    print(max_lap_per_driver_per_session)
-
-    lap_data['NaN_count'] = lap_data.isna().sum(axis=1)
-
-    lap_data = lap_data[lap_data['NaN_count'] <= 2].copy()
-
-    lap_data.drop(columns=['NaN_count'], inplace=True)
-
-    lap_data['LapNorm'] = lap_data['LapNumber']/(lap_data['Driver'].map(max_lap_per_driver_per_session))
-    lap_data["Session"] = session_name
-    lap_data["Position"] = 0 if lap_data['Position'].isna().all() else lap_data['Position']
+                # elif year == 2023 and weekend == 6: # Actually cancelled
+                #     continue
 
 
-    impute_columns(lap_data, 'Sector1Time')
-    impute_columns(lap_data, 'Sector2Time')
-    impute_columns(lap_data, 'Sector3Time')
-    impute_columns(lap_data, 'SpeedI1')
-    impute_columns(lap_data, 'SpeedI2')
-    impute_columns(lap_data, 'SpeedFL')
-    impute_columns(lap_data, 'SpeedST')
-    impute_columns(lap_data, 'Sector1SessionTime')
-    impute_columns(lap_data, 'Sector2SessionTime')
-    impute_columns(lap_data, 'Sector3SessionTime')
+
+                session = event.get_session(session_name)
+                session.load()
+                # print(sessions[0])
 
 
-    lap_data['PitLap'] = lap_data.apply(
-        lambda row: False if pd.isna(row['PitOutTime']) and pd.isna(row["PitInTime"]) else True, axis=1
-    )
-    lap_data.drop(['DriverNumber', 'DeletedReason', 'PitOutTime', 'PitInTime'], axis=1, inplace=True)
-    lap_data['Year'] = year
-    lap_data['GP'] = gp
-    print(lap_data.isna().any())
-    print(lap_data.iloc[0])
-    print(lap_data.columns.values)
+
+                # Code to get LapNorm for each driver in each session
+                try:
+                    lap_data = session.laps
+                except fastf1.core.DataNotLoadedError:
+                    print("HELLLLLLLLOOOOOOOOOOOOOOOOOO")
+                    print(year, weekend, session_name)
+                    print("HELLLLLLLLOOOOOOOOOOOOOOOOOO")
+                    print("HELLLLLLLLOOOOOOOOOOOOOOOOOO")
+                    print("HELLLLLLLLOOOOOOOOOOOOOOOOOO")
+                    continue
+                drivers = set(session.laps['Driver'].values)
+                max_lap_per_driver_per_session = lap_data.groupby('Driver')['LapNumber'].max().to_dict()
+                # print(max_lap_per_driver_per_session)
+
+                lap_data['LapNorm'] = lap_data['LapNumber']/(lap_data['Driver'].map(max_lap_per_driver_per_session))
+                lap_data["Session"] = session_name
+                lap_data['Position'].fillna(0, inplace=True)
+                lap_data['TrackStatus'].fillna(0, inplace=True)
+
+
+                lap_data['PitLap'] = lap_data.apply(
+                    lambda row: False if pd.isna(row['PitOutTime']) and pd.isna(row["PitInTime"]) else True, axis=1
+                )
+                lap_data['Year'] = year
+                lap_data['GP'] = weekend
+                lap_data['Session'] = session_name
+                try:
+                    add_weather_data(lap_data)
+                except fastf1.core.DataNotLoadedError:
+                    print("HELLLLLLLLOOOOOOOOOOOOOOOOOO")
+                    print(year, weekend, session_name)
+                    print("HELLLLLLLLOOOOOOOOOOOOOOOOOO")
+                    print("HELLLLLLLLOOOOOOOOOOOOOOOOOO")
+                    print("HELLLLLLLLOOOOOOOOOOOOOOOOOO")
+                    continue
+                #lap_data.drop(['PitOutTime', 'PitInTime'], axis=1, inplace=True)
+
+                lap_data['NaN_count'] = lap_data.isna().sum(axis=1)
+
+                lap_data = lap_data[lap_data['NaN_count'] < 2].copy()
+
+                lap_data.drop(columns=['NaN_count'], inplace=True)
+
+                impute_columns(lap_data, 'Sector1Time')
+                impute_columns(lap_data, 'Sector2Time')
+                impute_columns(lap_data, 'Sector3Time')
+                impute_columns(lap_data, 'SpeedI1')
+                impute_columns(lap_data, 'SpeedI2')
+                impute_columns(lap_data, 'SpeedFL')
+                impute_columns(lap_data, 'SpeedST')
+                impute_columns(lap_data, 'Sector1SessionTime')
+                impute_columns(lap_data, 'Sector2SessionTime')
+                impute_columns(lap_data, 'Sector3SessionTime')
+
+                #lap_data.drop(['DriverNumber', 'DeletedReason'], axis=1, inplace=True)
+
+                # print(lap_data.isna().any())
+                # print(lap_data.iloc[0])
+                # print(lap_data.columns.values)
+                session_dfs.append(lap_data)
+
+            if not (len(session_dfs) == 0):
+                weekend_dfs.append(pd.concat(session_dfs, axis=0, ignore_index=True))
+        year_dfs.append(pd.concat(weekend_dfs, axis=0, ignore_index=True))
+
+    final_data = pd.concat(year_dfs, axis=0, ignore_index=True)
+    final_data.to_csv(r'G:\F1ML\F1Data\f1_data_combined.csv', index=False)
+
+
+
 if __name__ == "__main__":
     main()
+
+
+
+# For future notice, I should incorporate telemetry data in the predictions, not sure how right now, but yeah
+# Same as get_weather_data(), method for each lap that spits out your telemetry data, get_telemetry() for non cached, telemtry for cached. Optional Freq option
+# 'Date', 'SessionTime', 'DriverAhead', 'DistanceToDriverAhead', 'Time',
+#        'RPM', 'Speed', 'nGear', 'Throttle', 'Brake', 'DRS', 'Source',
+#        'Distance', 'RelativeDistance', 'Status', 'X', 'Y', 'Z'],
+
+# DO NOT FORGET, WHEN ACCESSING TELEMTRY DATA OR CAR POS DATA OR WHATEVER, THE METHOD USES DRIVER NUMBER TO SEARCH FOR THE LAP. DO NOT DROP THIS BEFORE YOU ARE COMPLETELY FINISHED WITH ORGANISING THE DATASET.
+
+# Column values above.
