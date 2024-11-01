@@ -146,10 +146,14 @@ def main():
                 # elif year == 2023 and weekend == 6: # Actually cancelled
                 #     continue
 
-
+                if year == 2024 and weekend == 20:
+                    fastf1.Cache.offline_mode('disabled')
 
                 session = event.get_session(session_name)
                 session.load()
+
+                weekend_name = session.event['EventName']
+                # print(weekend_name)
                 # print(sessions[0])
 
 
@@ -178,7 +182,7 @@ def main():
                     lambda row: False if pd.isna(row['PitOutTime']) and pd.isna(row["PitInTime"]) else True, axis=1
                 )
                 lap_data['Year'] = year
-                lap_data['GP'] = weekend
+                lap_data['GP'] = weekend_name
                 lap_data['Session'] = session_name
                 try:
                     add_weather_data(lap_data)
@@ -189,11 +193,11 @@ def main():
                     print("HELLLLLLLLOOOOOOOOOOOOOOOOOO")
                     print("HELLLLLLLLOOOOOOOOOOOOOOOOOO")
                     continue
-                #lap_data.drop(['PitOutTime', 'PitInTime'], axis=1, inplace=True)
+                lap_data.drop(['PitOutTime', 'PitInTime', 'DeletedReason'], axis=1, inplace=True)
 
                 lap_data['NaN_count'] = lap_data.isna().sum(axis=1)
 
-                lap_data = lap_data[lap_data['NaN_count'] < 2].copy()
+                lap_data = lap_data[lap_data['NaN_count'] < 2   ].copy()
 
                 lap_data.drop(columns=['NaN_count'], inplace=True)
 
