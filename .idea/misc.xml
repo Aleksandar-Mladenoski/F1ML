@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="F1" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Formel1-CondaENV" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="F1" project-jdk-type="Python SDK" />
 </project>

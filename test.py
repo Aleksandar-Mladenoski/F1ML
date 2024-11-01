@@ -11,9 +11,6 @@ print(na_per_column[na_per_column > 0])  # Only displays columns with NA values
 total_na = df.isna().sum().sum()
 print(f"Total NA values in dataset: {total_na}")
 
-# Drop the 'PitOutTime', 'PitInTime', and 'DeletedReason' columns
-your_dataframe = df.drop(columns=['PitOutTime', 'PitInTime', 'DeletedReason'])
-
 # Fill NA values in 'TrackStatus' with 0
 your_dataframe['TrackStatus'].fillna(0, inplace=True)
 

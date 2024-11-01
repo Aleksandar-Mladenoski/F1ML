@@ -107,6 +107,7 @@ def add_weather_data(df):
 
 def main():
     year_dfs = list()
+    result_dfs = list()
     for year in range(2018,2024+1): # 2018,2024+1
         weekend_dfs = list()
         for weekend in range(1, session_per_year[year]+1): # 1, session_per_year[year]+1
@@ -151,8 +152,18 @@ def main():
 
                 session = event.get_session(session_name)
                 session.load()
-
                 weekend_name = session.event['EventName']
+
+                if session_name == 'Race':
+                    result = session.results
+                    result = result.drop(['DriverNumber', 'BroadcastName', 'DriverId', 'TeamName',
+                                          'TeamColor', 'TeamId', 'FirstName', 'LastName', 'FullName',
+                                          'HeadshotUrl', 'CountryCode', 'ClassifiedPosition',
+                                          'GridPosition', 'Q1', 'Q2', 'Q3', 'Time', 'Status', 'Points'], axis=1)
+                    result['Year'] = year
+                    result['Weekend'] = weekend_name
+                    result_dfs.append(result)
+
                 # print(weekend_name)
                 # print(sessions[0])
 
@@ -223,7 +234,9 @@ def main():
                 weekend_dfs.append(pd.concat(session_dfs, axis=0, ignore_index=True))
         year_dfs.append(pd.concat(weekend_dfs, axis=0, ignore_index=True))
 
+    final_result_data = pd.concat(result_dfs, axis=0, ignore_index=True)
     final_data = pd.concat(year_dfs, axis=0, ignore_index=True)
+    final_result_data.to_csv(r'G:\F1ML\F1Data\f1_final_result_data.csv', index=False)
     final_data.to_csv(r'G:\F1ML\F1Data\f1_data_combined.csv', index=False)
 
 
