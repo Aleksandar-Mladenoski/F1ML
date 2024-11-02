@@ -161,7 +161,8 @@ def main():
                                           'HeadshotUrl', 'CountryCode', 'ClassifiedPosition',
                                           'GridPosition', 'Q1', 'Q2', 'Q3', 'Time', 'Status', 'Points'], axis=1)
                     result['Year'] = year
-                    result['Weekend'] = weekend_name
+                    result['GP'] = weekend_name
+                    result['GP_num'] = weekend
                     result_dfs.append(result)
 
                 # print(weekend_name)

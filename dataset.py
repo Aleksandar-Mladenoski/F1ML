@@ -34,5 +34,8 @@ class FSDataset(Dataset):
         for i, year in enumerate(self.years):
             if idx <= cum_sample:
                 idx_year = year
+                idx_within_year = idx - (cum_sample - self.samples_per_year[self.years[i]])
                 break
             cum_sample += self.samples_per_year[self.years[i+1]]
+
+        laps = self.lap_data[(lap_data['Year'] == idx_year) & (lap_data['GP_num'] == idx_within_year)]
