@@ -1,9 +1,5 @@
 markdown
 # F1ML: Formula 1 Machine Learning Analysis
-
-## Short Description
-**F1ML** is a comprehensive machine learning project designed to analyze Formula 1 race data. By leveraging telemetry, lap times, weather conditions, and more, this project explores predictive analytics and insights into driver performance and race outcomes.
-
 ---
 
 ## Table of Contents
@@ -18,10 +14,10 @@ markdown
 ---
 
 ## Introduction
-This project combines cutting-edge machine learning techniques with the high-speed world of Formula 1 racing. It aims to:
+This project is a passion project of mine that plays around with data in such a way that I find really interesting and fun, it aims to do the following:
 - Extract, clean, and preprocess session data such as laps, telemetry, and weather.
 - Build predictive models for race results using aggregated metrics.
-- Enhance understanding of driver performance through statistical and analytical techniques.
+- Perhaps provide a cool way to visualize the performance of different drivers on different tracks and conditions.
 
 ---
 
@@ -73,9 +69,8 @@ The project uses multiple datasets, including:
 ---
 
 ## Future Plans
-- Incorporate real-time F1 data streams for live analysis.
-- Add advanced models such as neural networks for deeper insights.
-- Create visual dashboards for race predictions and comparisons.
+- Build a sequential model ( such as a transformer ) that can better understand the spatial aspect of the F1 lap data
+- Perhaps create some dashboard for predicting races in the future? We will see.
 
 ---
 
