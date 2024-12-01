@@ -1,4 +1,3 @@
-markdown
 # F1ML: Formula 1 Machine Learning Analysis
 ---
 
