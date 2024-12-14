@@ -37,7 +37,7 @@ class FSDataset(Dataset):
 
         if idx_year == 2024 and idx_within_year == 3:
             result = pd.concat([result, pd.DataFrame([["SAR", 20.0, 2024, 'Australian Grand Prix', 3]], columns=result.columns)], ignore_index=True)
-        laps.drop(['Year', 'GP', 'Session', 'Time', 'LapTime', 'Sector1Time', 'Sector2Time', 'Sector3Time'], axis=1, inplace=True)
+        laps.drop(['Year', 'GP', 'Session', 'Time', 'LapTime', 'Sector1Time', 'Sector2Time', 'Sector3Time', 'LapStartTime', 'LapStartDate', 'Sector1SessionTime', 'Sector2SessionTime', 'Sector3SessionTime'], axis=1, inplace=True)
         #print(f"Year: {idx_year}, idx_within_year: {idx_within_year}")
         #print("Expected GP_num values:", self.final_results[self.final_results['Year'] == idx_year]['GP_num'].unique())
 
@@ -52,10 +52,12 @@ def collate_fn(batch, max_driver_laps_per_session: int = 219):
         laps, result, idx_year, idx_within_year = batch[i]
         driver_laps_dict = dict()
         for driver in pd.unique(laps['Driver'].values):
-            driver_laps = laps[laps['Driver'] == driver]
+            driver_laps = laps[laps['Driver'] == driver].drop(['Driver'], axis=1).copy()
             temp = [([0] * driver_laps.shape[1]) for i in range(max_driver_laps_per_session-laps.shape[0])]
             pad = pd.DataFrame(temp, columns=driver_laps.columns)
             driver_laps_padded = pd.concat([driver_laps, pad], axis=0, ignore_index=True)
+            print([f"{driver_laps.columns.values[i]}: {x}"for i, x in enumerate(driver_laps.iloc[0].values) ])
+            print([f"{i}: {x}"for i, x in enumerate(driver_laps_padded.dtypes.values)])
             driver_laps_tensor = torch.tensor(driver_laps_padded.to_numpy(), dtype=torch.float32)
             driver_laps_dict.update({driver: driver_laps_tensor})
         result.drop(['Year', 'GP', 'GP_num'], axis=1, inplace=True) # Columns before: 'Abbreviation' 'Position' 'Year' 'GP' 'GP_num'
