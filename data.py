@@ -196,6 +196,8 @@ def main():
                 lap_data['Year'] = year
                 lap_data['GP'] = weekend_name
                 lap_data['Session'] = session_name
+                lap_data['GP_num'] = weekend
+
                 try:
                     add_weather_data(lap_data)
                 except fastf1.core.DataNotLoadedError:

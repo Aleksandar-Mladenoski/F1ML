@@ -12,6 +12,7 @@ total_na = df.isna().sum().sum()
 print(f"Total NA values in dataset: {total_na}")
 
 # Fill NA values in 'TrackStatus' with 0
+your_dataframe = df
 your_dataframe['TrackStatus'].fillna(0, inplace=True)
 
 # Drop the single row where 'LapTime' is missing
