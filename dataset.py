@@ -77,7 +77,6 @@ def collate_fn(batch, max_driver_laps_per_session: int = 219, pad_flag: bool = T
         drivers_laps_list = list()
         results = list()
         driver_to_idx_dict = dict()
-
         for idx, driver in enumerate(pd.unique(result['Abbreviation'].values)):
             driver_laps = laps[laps['Driver'] == driver].drop(['Driver'], axis=1).copy()
             if pad_flag:
@@ -90,8 +89,8 @@ def collate_fn(batch, max_driver_laps_per_session: int = 219, pad_flag: bool = T
             #print([f"{driver_laps.columns.values[i]}: {x}"for i, x in enumerate(driver_laps.iloc[0].values) ])
 
             driver_laps_tensor = torch.tensor(driver_laps_padded.to_numpy(), dtype=torch.float32)
-            # print(result)
-            # print(driver)
+            #print(result)
+            #print(driver)
             driver_result_tensor = torch.tensor(result[result['Abbreviation'] == driver]['Position'].iloc[0].astype(float))
 
 
@@ -130,9 +129,9 @@ def f1data_train_test_split(lap_data_dir, final_results_dir, test_precent: float
     if (test_precent > 1) or (0 > test_precent):
         raise ValueError("Test_precent must be between 0 and 1")
 
-    lap_data = pd.read_csv(lap_data_dir)
+    lap_data = pd.read_csv(lap_data_dir, index_col=0)
     final_results = pd.read_csv(final_results_dir)
-
+    #print(lap_data.columns.values, final_results.columns.values)
     samples_per_year = dict()
     years = np.sort(lap_data['Year'].unique())
 

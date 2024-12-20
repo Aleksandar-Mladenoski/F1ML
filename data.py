@@ -42,7 +42,7 @@ import pandas as pd
 import fastf1
 
 potential_sessions = {"Practice 1", "Practice 2", "Practice 3", "Sprint Qualifying", "Qualifying", "Sprint Race", "Race"}
-session_per_year = {2018: 21, 2019: 21, 2020: 17, 2021: 22, 2022: 22, 2023: 22, 2024: 20}
+session_per_year = {2018: 21, 2019: 21, 2020: 17, 2021: 22, 2022: 22, 2023: 22, 2024: 24}
 
 fastf1.Cache.enable_cache('G:\F1ML\F1Data')
 fastf1.Cache.offline_mode('enabled')
@@ -122,9 +122,11 @@ def main():
                     continue
                 elif year == 2020 and weekend == 11 and (session_name == 'Practice 1' or session_name == 'Practice 2'): # Actually cancelled
                     continue
-                elif year == 2021 and weekend == 1 and session_name == 'Practice 1': #  Not cancelled
-                    continue
                 elif year == 2021 and weekend == 15 and session_name == 'Practice 3': # Actually cancelled
+                    continue
+                elif year == 2023 and weekend == 6: # Actually cancelled
+                    continue
+                elif year == 2021 and weekend == 1 and session_name == 'Practice 1': #  Not cancelled
                     continue
                 elif year == 2022 and weekend == 14 and session_name == 'Qualifying':  # Not cancelled
                     continue
@@ -143,9 +145,6 @@ def main():
                 elif year == 2024 and weekend == 17 and session_name == 'Qualifying': #Not cancelled
                     continue
 
-
-                # elif year == 2023 and weekend == 6: # Actually cancelled
-                #     continue
 
                 if year == 2024 and weekend == 20:
                     fastf1.Cache.offline_mode('disabled')

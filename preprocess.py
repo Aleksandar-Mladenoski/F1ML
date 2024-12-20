@@ -53,11 +53,18 @@ def preprocess_datetime_features(df):
 
 laps = pd.read_csv(r'F1Data\f1_dropped_na.csv', index_col=0)
 laps.drop(['DriverNumber'], axis=1, inplace=True)
+
+boolean_cols = ['IsPersonalBest', 'FreshTyre', 'Deleted', 'FastF1Generated', 'IsAccurate', 'PitLap', 'Rainfall']
+laps[boolean_cols] = laps[boolean_cols].astype(float)
+
+
 categorical_cols = ['Compound', 'Team', 'Year', 'GP', 'Session']
-dummies = pd.get_dummies(laps[categorical_cols], drop_first=False)
+dummies = pd.get_dummies(laps[categorical_cols], drop_first=False).astype(float)
 laps.drop(['Compound', 'Team'], axis=1, inplace=True)
+laps['GP_num'] = laps['GP_num'].astype(float)
 laps_padded = pd.concat([laps, dummies], axis=1)
 cols_to_keep = ['Year', 'GP', 'Session']
+
 
 laps_padded = laps_padded.loc[:, ~laps_padded.columns.duplicated(keep='first')]
 

@@ -91,6 +91,8 @@ class TransformerEncoder(nn.Module):
         self.blocks = nn.Sequential(OrderedDict([(f'EncoderBlock+{i}', EncoderBlock(num_heads, num_features_list[i], num_features_list[i+1], num_multiplier)) for i in range(num_blocks-1)]))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        #print(x.shape)
+        #print(x)
         x = self.blocks(x)
         return x
 

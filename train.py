@@ -237,7 +237,7 @@ if __name__ == '__main__':
     LEARNING_RATE = 0.0012
     NUM_EPOCHS = 15
 
-    # f1data_train_test_split(r'F1Data\f1_preprocessed.csv', r'F1Data\f1_final_result_data.csv', TEST_SIZE)
+    f1data_train_test_split(r'F1Data\f1_preprocessed.csv', r'F1Data\f1_final_result_data.csv', TEST_SIZE)
     np.random.seed(SEED)
     torch.manual_seed(SEED)
 
