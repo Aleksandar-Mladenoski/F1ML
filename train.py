@@ -238,12 +238,14 @@ if __name__ == '__main__':
     NUM_EPOCHS = 15
 
     # f1data_train_test_split(r'F1Data\f1_preprocessed.csv', r'F1Data\f1_final_result_data.csv', TEST_SIZE)
+    np.random.seed(SEED)
+    torch.manual_seed(SEED)
 
     train_dataset = FSDataset(r'F1Data\training_lap_data.csv', r'F1Data\training_results_data.csv')
     test_dataset = FSDataset(r'F1Data\test_lap_data.csv', r'F1Data\test_results_data.csv')
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    net = F1MLTransformer(num_blocks=5, num_heads=4,num_features_list=[106, 64, 32, 32, 16],num_multiplier=1, num_embeddings=106, linear_list=[512, 256, 128, 32])
+    net = F1MLTransformer(num_blocks=10, num_heads=8,num_features_list=[106, 128, 128, 128, 128, 128, 128, 128, 128, 128],num_multiplier=4, num_embeddings=106, linear_list=[512, 256, 128, 32])
     net.to(device)
     # net.load_state_dict(torch.load('model.pth'))
     # optimizer = torch.optim.Adam(net.parameters(), lr=LEARNING_RATE)
@@ -253,7 +255,7 @@ if __name__ == '__main__':
     writer = SummaryWriter()
 
     minibatch_losses_train, minibatch_losses_eval, epoch_losses_train, epoch_losses_eval = training_loop(
-        network = net, train_data = train_dataset, eval_data = test_dataset, num_epochs = NUM_EPOCHS, learning_rate = LEARNING_RATE, loss_fn = LambdaLoss(), collate_fn = collate_fn, batch_size = BATCH_SIZE,  l1_lambda=0, l2_lambda=0, show_progress=True,
+        network = net, train_data = train_dataset, eval_data = test_dataset, num_epochs = NUM_EPOCHS, learning_rate = LEARNING_RATE, loss_fn = LambdaLoss(), collate_fn = lambda batch: collate_fn(batch, pad_flag=True), batch_size = BATCH_SIZE,  l1_lambda=0, l2_lambda=0, show_progress=True,
         writer=writer
     )
 

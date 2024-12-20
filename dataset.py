@@ -66,7 +66,7 @@ class FSDataset(Dataset):
 
         return laps, result, idx_year, idx_within_year
 
-def collate_fn(batch, max_driver_laps_per_session: int = 219):
+def collate_fn(batch, max_driver_laps_per_session: int = 219, pad_flag: bool = True):
     driver_laps_batch = list()
     driver_to_idx_batch = list()
     result_batch = list()
@@ -80,10 +80,12 @@ def collate_fn(batch, max_driver_laps_per_session: int = 219):
 
         for idx, driver in enumerate(pd.unique(result['Abbreviation'].values)):
             driver_laps = laps[laps['Driver'] == driver].drop(['Driver'], axis=1).copy()
-            temp = [([0] * driver_laps.shape[1]) for i in range(max_driver_laps_per_session-driver_laps.shape[0])]
-            pad = pd.DataFrame(temp, columns=driver_laps.columns)
-            driver_laps_padded = pd.concat([driver_laps, pad], axis=0, ignore_index=True)
-
+            if pad_flag:
+                temp = [([0] * driver_laps.shape[1]) for i in range(max_driver_laps_per_session-driver_laps.shape[0])]
+                pad = pd.DataFrame(temp, columns=driver_laps.columns)
+                driver_laps_padded = pd.concat([driver_laps, pad], axis=0, ignore_index=True)
+            else:
+                driver_laps_padded = driver_laps
             #print([f"{i}: {x}"for i, x in enumerate(driver_laps_padded.dtypes.values)])
             #print([f"{driver_laps.columns.values[i]}: {x}"for i, x in enumerate(driver_laps.iloc[0].values) ])
 
